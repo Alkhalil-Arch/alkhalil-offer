@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شركة الخليل - العرض الاحترافي المتكامل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background-color: #525659; font-family: 'Cairo', sans-serif; display: flex; flex-direction: column; align-items: center; }
+        
+        #control-panel { 
+            background: #2c3e50; color: white; padding: 20px; width: 1000px; 
+            margin: 20px 0; border-radius: 10px; display: grid; 
+            grid-template-columns: repeat(4, 1fr); gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        @media print { 
+            #control-panel { display: none; } 
+            body { background: none; margin: 0; padding: 0; }
+            @page { size: A4 landscape; margin: 0; }
+            .page { 
+                margin: 0 !important; padding: 0 !important;
+                box-shadow: none !important; page-break-after: always !important; 
+                width: 297mm !important; height: 210mm !important;
+            }
+            .slide-img { width: 100% !important; height: 100% !important; display: block; }
+        }
+
+        .page { position: relative; width: 297mm; height: 210mm; background-color: white; margin-bottom: 10px; overflow: hidden; }
+        .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; z-index: 1; }
+        .content-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+
+        .project-info { position: absolute; color: #58595b; font-weight: 700; white-space: nowrap; }
+        .excel-value { position: absolute; color: #be1e2d; font-weight: bold; text-align: center; width: 28mm; font-size: 16px; }
+
+        /* الإحداثيات المعتمدة */
+        #display-project-name { top: 167.9mm; right: 109mm; font-size: 25px; } 
+        #display-client-name { top: 111.2mm; right: 40.8mm; text-align: center; width: 40mm; font-size: 18px; }
+        #display-date { top: 111.7mm; right: 185.5mm; text-align: center; width: 40mm; font-size: 18px; }
+
+        #val0 { top: 49.5mm; right: 243mm; } #val1 { top: 62.8mm; right: 243mm; } 
+        #val2 { top: 83.5mm; right: 243mm; } #val3 { top: 97.2mm; right: 243mm; } 
+        #val4 { top: 112.5mm; right: 243mm; } #val5 { top: 125.8mm; right: 243mm; } 
+        #val6 { top: 139.5mm; right: 243mm; }
+
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { margin-bottom: 5px; font-size: 12px; color: #bdc3c7; }
+        .input-group input, .input-group textarea { padding: 8px; border-radius: 5px; border: 1px solid #34495e; font-family: 'Cairo'; font-size: 14px; }
+        .input-group textarea { resize: vertical; min-height: 80px; grid-column: span 2; }
+        
+        .pdf-btn { grid-column: span 2; background: #be1e2d; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
+        .wa-btn { grid-column: span 2; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <div class="input-group"><label>نوع المشروع:</label><input type="text" id="project-name" oninput="updateAll()"></div>
+        <div class="input-group"><label>اسم العميل:</label><input type="text" id="client-name" oninput="updateAll()"></div>
+        <div class="input-group"><label>رقم جوال العميل (966...):</label><input type="text" id="client-phone" placeholder="9665xxxxxxxx"></div>
+        <div class="input-group" style="grid-column: span 2;"><label>نص رسالة الواتساب:</label>
+            <textarea id="whatsapp-message">السلام عليكم أ. [الاسم]، يسر شركة الخليل إرسال تفاصيل عرض السعر المبدئي لمشروعكم ([المشروع]). إجمالي مسطحات البناء المتوقعة هي [المساحة] م2. مرفق لكم ملف PDF بالتفاصيل.</textarea>
+        </div>
+        <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="input-land-area" value="1000" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الأرضي:</label><input type="number" id="perc-ground" value="60" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الأول:</label><input type="number" id="perc-first" value="60" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الملحق:</label><input type="number" id="perc-roof" value="50" oninput="updateAll()"></div>
+        <div class="input-group"><label>ملحق خارجي:</label><input type="number" id="perc-ext" value="10" oninput="updateAll()"></div>
+        <div class="input-group"><label>القبو:</label><input type="number" id="input-basement" value="0" oninput="updateAll()"></div>
+        
+        <button class="pdf-btn" onclick="window.print()">تصدير PDF للطباعة</button>
+        <button class="wa-btn" onclick="sendWhatsApp()">إرسال الرسالة الخاصة عبر واتساب</button>
+    </div>
+
+    <div id="pages-container"></div>
+
+    <script>
+        const container = document.getElementById('pages-container');
+        for (let i = 1; i <= 15; i++) {
+            let content = "";
+            if (i === 1) content = `<div id="display-project-name" class="project-info">...</div>`;
+            if (i === 2) content = `<div id="display-client-name" class="project-info">...</div><div id="display-date" class="project-info">...</div>`;
+            if (i === 4) {
+                content = `<div id="val0" class="excel-value"></div><div id="val1" class="excel-value"></div><div id="val2" class="excel-value"></div><div id="val3" class="excel-value"></div><div id="val4" class="excel-value"></div><div id="val5" class="excel-value"></div><div id="val6" class="excel-value"></div>`;
+            }
+            container.innerHTML += `<div class="page"><img src="Slide${i}.jpg" class="slide-img" id="img-slide-${i}" onerror="this.src='Slide${i}.JPG'"><div class="content-layer">${content}</div></div>`;
+        }
+
+        let currentTotal = 0;
+
+        function updateAll() {
+            const landArea = parseFloat(document.getElementById('input-land-area').value) || 0;
+            const pGround = (parseFloat(document.getElementById('perc-ground').value) || 0) / 100;
+            const pFirst  = (parseFloat(document.getElementById('perc-first').value) || 0) / 100;
+            const pRoof   = (parseFloat(document.getElementById('perc-roof').value) || 0) / 100; 
+            const pExt    = (parseFloat(document.getElementById('perc-ext').value) || 0) / 100;
+            const basementArea = parseFloat(document.getElementById('input-basement').value) || 0;
+
+            const resGround = landArea * pGround;
+            const resFirst  = landArea * pFirst;
+            const resRoof   = resFirst * pRoof; 
+            const resExt    = landArea * pExt;
+            currentTotal = Math.round(resGround + resFirst + resRoof + resExt + basementArea);
+
+            const today = new Date();
+            document.getElementById('display-date').innerText = today.getDate() + '/' + (today.getMonth()+1) + '/' + today.getFullYear();
+            const clientName = document.getElementById('client-name').value || "اسم العميل";
+            const projectName = document.getElementById('project-name').value || "نوع المشروع";
+            
+            document.getElementById('display-client-name').innerText = clientName;
+            document.getElementById('display-project-name').innerText = projectName;
+
+            const setVal = (id, num) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(num).toLocaleString('en-US') + " متر مربع "; };
+            setVal('val0', landArea); setVal('val2', resGround); setVal('val3', resFirst); setVal('val4', resRoof); setVal('val5', resExt); setVal('val6', basementArea); setVal('val1', currentTotal);
+
+            const priceImg = document.getElementById('img-slide-5');
+            if (currentTotal <= 800) priceImg.src = "Price800.jpg";
+            else if (currentTotal <= 1500) priceImg.src = "Price1500.jpg";
+            else if (currentTotal <= 3000) priceImg.src = "Price3000.jpg";
+            else priceImg.src = "Slide5.jpg";
+        }
+
+        function sendWhatsApp() {
+            const phone = document.getElementById('client-phone').value;
+            let customMessage = document.getElementById('whatsapp-message').value;
+            
+            if(!phone) { alert("يرجى إدخال رقم الجوال أولاً"); return; }
+
+            // ترميز الرسالة لتعمل مع روابط الويب
+            const encodedMessage = encodeURIComponent(customMessage);
+            window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
+        }
+
+        updateAll();
+    </script>
+</body>
+</html>
