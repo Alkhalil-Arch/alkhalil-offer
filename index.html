@@ -117,7 +117,7 @@
             document.getElementById('display-project-name').innerText = proj;
 
             // تحديث الرسالة بالصيغة الجديدة
-            const messageText = `أهلاً بك أ. ${clientName} .. ${greeting} 🌸\n\nمعك ${empName} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
+            const messageText = `أهلاً بك  ${clientName} .. ${greeting} 🌸\n\nمعك ${empName} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
             document.getElementById('whatsapp-message').value = messageText;
 
             const setVal = (id, num) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(num).toLocaleString('en-US') + " m2"; };
