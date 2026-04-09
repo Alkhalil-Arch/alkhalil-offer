@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>شركة الخليل - عرض السعر </title>
+    <title>شركة الخليل - عرض السعر</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background-color: #525659; font-family: 'Cairo', sans-serif; display: flex; flex-direction: column; align-items: center; }
@@ -33,7 +33,7 @@
         .project-info { position: absolute; color: #58595b; font-weight: 700; white-space: nowrap; }
         .excel-value { position: absolute; color: #be1e2d; font-weight: bold; text-align: center; width: 28mm; font-size: 16px; }
 
-        /* الإحداثيات المعتمدة */
+        /* --- الإحداثيات المعتمدة --- */
         #display-project-name { top: 167.9mm; right: 109mm; font-size: 25px; } 
         #display-client-name { top: 111.2mm; right: 40.8mm; text-align: center; width: 40mm; font-size: 18px; }
         #display-date { top: 111.7mm; right: 185.5mm; text-align: center; width: 40mm; font-size: 18px; }
@@ -46,7 +46,7 @@
         .input-group { display: flex; flex-direction: column; }
         .input-group label { margin-bottom: 5px; font-size: 12px; color: #bdc3c7; }
         .input-group input, .input-group textarea { padding: 8px; border-radius: 5px; border: 1px solid #34495e; font-family: 'Cairo'; font-size: 14px; }
-        .input-group textarea { resize: vertical; min-height: 80px; grid-column: span 2; }
+        .input-group textarea { resize: vertical; min-height: 120px; grid-column: span 2; background: #ecf0f1; color: #2c3e50; }
         
         .pdf-btn { grid-column: span 2; background: #be1e2d; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
         .wa-btn { grid-column: span 2; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
@@ -57,13 +57,10 @@
     <div id="control-panel">
         <div class="input-group"><label>نوع المشروع:</label><input type="text" id="project-name" oninput="updateAll()"></div>
         <div class="input-group"><label>اسم العميل:</label><input type="text" id="client-name" oninput="updateAll()"></div>
-        <div class="input-group"><label>رقم جوال العميل (966...):</label><input type="text" id="client-phone" placeholder="9665xxxxxxxx"></div>
-        <div class="input-group" style="grid-column: span 2;"><label>نص رسالة الواتساب:</label>
-            <textarea id="whatsapp-message">أهلاً بك م. نواف يسعد مساك/صباحك 🌸
-
-معك الوليد من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.
-
-تلاقي في المرفقات ملف PDF يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً.😊🌷</textarea>
+        <div class="input-group"><label>اسم الموظف:</label><input type="text" id="employee-name" value="الوليد" oninput="updateAll()"></div>
+        <div class="input-group"><label>رقم الجوال (966...):</label><input type="text" id="client-phone" placeholder="9665xxxxxxxx"></div>
+        <div class="input-group" style="grid-column: span 2;"><label>معاينة الرسالة:</label>
+            <textarea id="whatsapp-message" readonly></textarea>
         </div>
         <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="input-land-area" value="1000" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الأرضي:</label><input type="number" id="perc-ground" value="60" oninput="updateAll()"></div>
@@ -73,13 +70,15 @@
         <div class="input-group"><label>القبو:</label><input type="number" id="input-basement" value="0" oninput="updateAll()"></div>
         
         <button class="pdf-btn" onclick="window.print()">تصدير PDF للطباعة</button>
-        <button class="wa-btn" onclick="sendWhatsApp()">إرسال الرسالة الخاصة عبر واتساب</button>
+        <button class="wa-btn" onclick="sendWhatsApp()">إرسال الرابط عبر واتساب</button>
     </div>
 
     <div id="pages-container"></div>
 
     <script>
         const container = document.getElementById('pages-container');
+        let currentTotal = 0;
+
         for (let i = 1; i <= 15; i++) {
             let content = "";
             if (i === 1) content = `<div id="display-project-name" class="project-info">...</div>`;
@@ -89,8 +88,6 @@
             }
             container.innerHTML += `<div class="page"><img src="Slide${i}.jpg" class="slide-img" id="img-slide-${i}" onerror="this.src='Slide${i}.JPG'"><div class="content-layer">${content}</div></div>`;
         }
-
-        let currentTotal = 0;
 
         function updateAll() {
             const landArea = parseFloat(document.getElementById('input-land-area').value) || 0;
@@ -107,14 +104,23 @@
             currentTotal = Math.round(resGround + resFirst + resRoof + resExt + basementArea);
 
             const today = new Date();
-            document.getElementById('display-date').innerText = today.getDate() + '/' + (today.getMonth()+1) + '/' + today.getFullYear();
-            const clientName = document.getElementById('client-name').value || "اسم العميل";
-            const projectName = document.getElementById('project-name').value || "نوع المشروع";
+            const formattedDate = today.getDate() + '/' + (today.getMonth()+1) + '/' + today.getFullYear();
+            const hour = today.getHours();
+            const greeting = (hour < 12) ? "يسعد صباحك" : "يسعد مساك";
             
-            document.getElementById('display-client-name').innerText = clientName;
-            document.getElementById('display-project-name').innerText = projectName;
+            const clientName = document.getElementById('client-name').value || "(اسم العميل)";
+            const empName = document.getElementById('employee-name').value || "(الموظف)";
+            const proj = document.getElementById('project-name').value || "المشروع";
 
-            const setVal = (id, num) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(num).toLocaleString('en-US') + " متر مربع "; };
+            document.getElementById('display-date').innerText = formattedDate;
+            document.getElementById('display-client-name').innerText = clientName;
+            document.getElementById('display-project-name').innerText = proj;
+
+            // تحديث الرسالة بالصيغة الجديدة
+            const messageText = `أهلاً بك أ. ${clientName} .. ${greeting} 🌸\n\nمعك ${empName} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
+            document.getElementById('whatsapp-message').value = messageText;
+
+            const setVal = (id, num) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(num).toLocaleString('en-US') + " m2"; };
             setVal('val0', landArea); setVal('val2', resGround); setVal('val3', resFirst); setVal('val4', resRoof); setVal('val5', resExt); setVal('val6', basementArea); setVal('val1', currentTotal);
 
             const priceImg = document.getElementById('img-slide-5');
@@ -126,15 +132,39 @@
 
         function sendWhatsApp() {
             const phone = document.getElementById('client-phone').value;
-            let customMessage = document.getElementById('whatsapp-message').value;
-            
-            if(!phone) { alert("يرجى إدخال رقم الجوال أولاً"); return; }
+            if(!phone) { alert("أدخل رقم الجوال"); return; }
 
-            // ترميز الرسالة لتعمل مع روابط الويب
-            const encodedMessage = encodeURIComponent(customMessage);
-            window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
+            const baseURL = "https://alkhalil-arch.github.io/alkhalil-offer/"; 
+            const n = encodeURIComponent(document.getElementById('client-name').value);
+            const p = encodeURIComponent(document.getElementById('project-name').value);
+            const l = document.getElementById('input-land-area').value;
+            const g = document.getElementById('perc-ground').value;
+            const f = document.getElementById('perc-first').value;
+            const r = document.getElementById('perc-roof').value;
+            const e = document.getElementById('perc-ext').value;
+            const b = document.getElementById('input-basement').value;
+
+            const offerLink = `${baseURL}?n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
+            const fullMsg = document.getElementById('whatsapp-message').value + offerLink;
+
+            window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(fullMsg)}`;
         }
 
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.has('n')) {
+                document.getElementById('control-panel').style.display = 'none'; 
+                document.getElementById('client-name').value = urlParams.get('n');
+                document.getElementById('project-name').value = urlParams.get('p');
+                document.getElementById('input-land-area').value = urlParams.get('l');
+                document.getElementById('perc-ground').value = urlParams.get('g');
+                document.getElementById('perc-first').value = urlParams.get('f');
+                document.getElementById('perc-roof').value = urlParams.get('r');
+                document.getElementById('perc-ext').value = urlParams.get('e');
+                document.getElementById('input-basement').value = urlParams.get('b');
+                updateAll();
+            }
+        }
         updateAll();
     </script>
 </body>
