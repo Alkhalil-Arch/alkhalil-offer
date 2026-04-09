@@ -7,7 +7,7 @@
     <style>
         body { margin: 0; padding: 0; background-color: #525659; font-family: 'Cairo', sans-serif; display: flex; flex-direction: column; align-items: center; }
         
-        /* جعل لوحة التحكم مخفية افتراضياً للجميع */
+        /* لوحة التحكم مخفية افتراضياً */
         #control-panel { 
             display: none; 
             background: #2c3e50; color: white; padding: 20px; width: 1000px; 
@@ -34,6 +34,7 @@
         .project-info { position: absolute; color: #58595b; font-weight: 700; white-space: nowrap; }
         .excel-value { position: absolute; color: #be1e2d; font-weight: bold; text-align: center; width: 28mm; font-size: 16px; }
 
+        /* الإحداثيات */
         #display-project-name { top: 167.9mm; right: 109mm; font-size: 25px; } 
         #display-client-name { top: 111.2mm; right: 40.8mm; text-align: center; width: 40mm; font-size: 18px; }
         #display-date { top: 111.7mm; right: 185.5mm; text-align: center; width: 40mm; font-size: 18px; }
@@ -134,6 +135,8 @@
             if(!phone) { alert("يرجى إدخال رقم الجوال"); return; }
 
             const baseURL = "https://alkhalil-arch.github.io/alkhalil-offer/"; 
+            
+            // اختصار المتغيرات لأقصى درجة
             const n = encodeURIComponent(document.getElementById('client-name').value);
             const p = encodeURIComponent(document.getElementById('project-name').value);
             const l = document.getElementById('input-land-area').value;
@@ -143,7 +146,7 @@
             const e = document.getElementById('perc-ext').value;
             const b = document.getElementById('input-basement').value;
 
-            // نرسل الرابط مع بيانات العميل (بدون v=admin) لضمان الإخفاء
+            // الرابط المختصر (بدون v=admin لضمان إخفاء اللوحة للعميل)
             const offerLink = `${baseURL}?n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
             const fullMsg = document.getElementById('whatsapp-message').value + offerLink;
 
@@ -154,15 +157,14 @@
             const urlParams = new URLSearchParams(window.location.search);
             const panel = document.getElementById('control-panel');
 
-            // القاعدة الجديدة:
-            // 1. إذا فتحت الرابط وبآخره ?admin تظهر اللوحة
-            // 2. إذا لم يوجد admin، تظل اللوحة مخفية للعميل
+            // إظهار اللوحة فقط إذا وجد "admin" في الرابط
             if (urlParams.has('admin')) {
                 panel.style.display = 'grid'; 
             } else {
                 panel.style.display = 'none';
             }
 
+            // قراءة البيانات المختصرة
             if (urlParams.has('l')) {
                 if(urlParams.has('n')) document.getElementById('client-name').value = urlParams.get('n');
                 if(urlParams.has('p')) document.getElementById('project-name').value = urlParams.get('p');
