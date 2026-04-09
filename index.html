@@ -6,23 +6,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background-color: #525659; font-family: 'Cairo', sans-serif; display: flex; flex-direction: column; align-items: center; }
-        #control-panel { display: none; background: #2c3e50; color: white; padding: 20px; width: 1000px; margin: 20px 0; border-radius: 10px; grid-template-columns: repeat(4, 1fr); gap: 15px; }
         
+        /* لوحة التحكم مخفية افتراضياً */
+        #control-panel { 
+            display: none; 
+            background: #2c3e50; color: white; padding: 20px; width: 1000px; 
+            margin: 20px 0; border-radius: 10px; display: grid; 
+            grid-template-columns: repeat(4, 1fr); gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
         @media print { 
             #control-panel { display: none !important; } 
-            body { background: none; }
-            .page { margin: 0 !important; box-shadow: none !important; page-break-after: always !important; width: 297mm !important; height: 210mm !important; }
+            body { background: none; margin: 0; padding: 0; }
+            @page { size: A4 landscape; margin: 0; }
+            .page { 
+                margin: 0 !important; padding: 0 !important;
+                box-shadow: none !important; page-break-after: always !important; 
+                width: 297mm !important; height: 210mm !important;
+            }
+            .slide-img { width: 100% !important; height: 100% !important; display: block; }
         }
 
         .page { position: relative; width: 297mm; height: 210mm; background-color: white; margin-bottom: 10px; overflow: hidden; }
         .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; z-index: 1; }
         .content-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
-        
-        /* طبقات البيانات */
+
         .project-info { position: absolute; color: #58595b; font-weight: 700; white-space: nowrap; }
         .excel-value { position: absolute; color: #be1e2d; font-weight: bold; text-align: center; width: 28mm; font-size: 16px; }
 
-        /* إحداثيات النصوص */
+        /* الإحداثيات المعتمدة */
         #display-project-name { top: 167.9mm; right: 109mm; font-size: 25px; } 
         #display-client-name { top: 111.2mm; right: 40.8mm; text-align: center; width: 40mm; font-size: 18px; }
         #display-date { top: 111.7mm; right: 185.5mm; text-align: center; width: 40mm; font-size: 18px; }
@@ -35,7 +48,10 @@
         .input-group { display: flex; flex-direction: column; }
         .input-group label { margin-bottom: 5px; font-size: 12px; color: #bdc3c7; }
         .input-group input, .input-group textarea { padding: 8px; border-radius: 5px; border: 1px solid #34495e; font-family: 'Cairo'; font-size: 14px; }
-        .wa-btn { grid-column: span 2; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .input-group textarea { resize: vertical; min-height: 100px; grid-column: span 2; background: #fdfdfd; color: #2c3e50; }
+        
+        .pdf-btn { grid-column: span 2; background: #be1e2d; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
+        .wa-btn { grid-column: span 2; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
     </style>
 </head>
 <body>
@@ -45,14 +61,18 @@
         <div class="input-group"><label>اسم العميل:</label><input type="text" id="c-name" oninput="updateAll()"></div>
         <div class="input-group"><label>اسم الموظف:</label><input type="text" id="e-name" value="الوليد الشهري" oninput="updateAll()"></div>
         <div class="input-group"><label>رقم الجوال:</label><input type="text" id="phone" placeholder="9665xxxxxxxx"></div>
-        <div class="input-group" style="grid-column: span 2;"><label>معاينة الرسالة:</label><textarea id="wa-msg" readonly></textarea></div>
+        <div class="input-group" style="grid-column: span 2;"><label>معاينة الرسالة:</label>
+            <textarea id="wa-msg" readonly></textarea>
+        </div>
         <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="l-area" value="1000" oninput="updateAll()"></div>
-        <div class="input-group"><label>نسبة الأرضي %:</label><input type="number" id="p-g" value="60" oninput="updateAll()"></div>
-        <div class="input-group"><label>نسبة الأول %:</label><input type="number" id="p-f" value="60" oninput="updateAll()"></div>
-        <div class="input-group"><label>نسبة الملحق %:</label><input type="number" id="p-r" value="50" oninput="updateAll()"></div>
-        <div class="input-group"><label>ملحق خارجي %:</label><input type="number" id="p-e" value="10" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الأرضي:</label><input type="number" id="p-g" value="60" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الأول:</label><input type="number" id="p-f" value="60" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الملحق:</label><input type="number" id="p-r" value="50" oninput="updateAll()"></div>
+        <div class="input-group"><label>ملحق خارجي:</label><input type="number" id="p-e" value="10" oninput="updateAll()"></div>
         <div class="input-group"><label>القبو:</label><input type="number" id="b-area" value="0" oninput="updateAll()"></div>
-        <button class="wa-btn" style="grid-column: span 4;" onclick="sendWhatsApp()">إرسال العرض (PDF) عبر واتساب</button>
+        
+        <button class="pdf-btn" onclick="window.print()">تصدير PDF للطباعة</button>
+        <button class="wa-btn" onclick="sendWhatsApp()">إرسال العرض المختصر عبر واتساب</button>
     </div>
 
     <div id="pages-container"></div>
@@ -65,8 +85,10 @@
             let content = "";
             if (i === 1) content = `<div id="display-project-name" class="project-info">...</div>`;
             if (i === 2) content = `<div id="display-client-name" class="project-info">...</div><div id="display-date" class="project-info">...</div>`;
-            if (i === 4) content = `<div id="val0" class="excel-value"></div><div id="val1" class="excel-value"></div><div id="val2" class="excel-value"></div><div id="val3" class="excel-value"></div><div id="val4" class="excel-value"></div><div id="val5" class="excel-value"></div><div id="val6" class="excel-value"></div>`;
-            container.innerHTML += `<div class="page"><img src="Slide${i}.jpg" class="slide-img" onerror="this.src='Slide${i}.JPG'"><div class="content-layer">${content}</div></div>`;
+            if (i === 4) {
+                content = `<div id="val0" class="excel-value"></div><div id="val1" class="excel-value"></div><div id="val2" class="excel-value"></div><div id="val3" class="excel-value"></div><div id="val4" class="excel-value"></div><div id="val5" class="excel-value"></div><div id="val6" class="excel-value"></div>`;
+            }
+            container.innerHTML += `<div class="page"><img src="Slide${i}.jpg" class="slide-img" id="img-slide-${i}" onerror="this.src='Slide${i}.JPG'"><div class="content-layer">${content}</div></div>`;
         }
 
         function updateAll() {
@@ -80,27 +102,37 @@
             const resG = land * pg; const resF = land * pf; const resR = resF * pr; const resE = land * pe;
             currentTotal = Math.round(resG + resF + resR + resE + ba);
 
-            const name = document.getElementById('c-name').value || "عميلنا العزيز";
-            const proj = document.getElementById('p-name').value || "مشروعك";
+            const today = new Date();
+            const fDate = today.getDate() + '/' + (today.getMonth()+1) + '/' + today.getFullYear();
+            const hour = today.getHours();
+            const greet = (hour < 12) ? "يسعد صباحك" : "يسعد مساك";
+            
+            const client = document.getElementById('c-name').value || "عميلنا العزيز";
             const emp = document.getElementById('e-name').value || "الوليد";
-            const fDate = new Date().toLocaleDateString('en-GB');
-            const greet = (new Date().getHours() < 12) ? "يسعد صباحك" : "يسعد مساك";
+            const proj = document.getElementById('p-name').value || "مشروعك";
 
             document.getElementById('display-date').innerText = fDate;
-            document.getElementById('display-client-name').innerText = name;
+            document.getElementById('display-client-name').innerText = client;
             document.getElementById('display-project-name').innerText = proj;
 
-            document.getElementById('wa-msg').value = `أهلاً بك أ. ${name} .. ${greet} 🌸\n\nمعك ${emp} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز (${proj}).\n\nتلاقي في الرابط أدناه ملف PDF يوضح لك كل التفاصيل. 😊🌷\n\n🔗 رابط ملف العرض: `;
+            const messageText = `أهلاً بك أ. ${client} .. ${greet} 🌸\n\nمعك ${emp} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط أدناه ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
+            document.getElementById('wa-msg').value = messageText;
 
             const setV = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(val).toLocaleString() + " m2"; };
             setV('val0', land); setV('val2', resG); setV('val3', resF); setV('val4', resR); setV('val5', resE); setV('val6', ba); setV('val1', currentTotal);
+            
+            const pImg = document.getElementById('img-slide-5');
+            if (currentTotal <= 800) pImg.src = "Price800.jpg";
+            else if (currentTotal <= 1500) pImg.src = "Price1500.jpg";
+            else if (currentTotal <= 3000) pImg.src = "Price3000.jpg";
+            else pImg.src = "Slide5.jpg";
         }
 
         function sendWhatsApp() {
             const phone = document.getElementById('phone').value;
-            const baseURL = "https://alkhalil-arch.github.io/alkhalil-offer/";
-            
-            // قمنا بإعادة n (الاسم) و p (المشروع) للرابط ليظهرا في الملف
+            if(!phone) { alert("يرجى إدخال رقم الجوال"); return; }
+
+            const baseURL = "https://alkhalil-arch.github.io/alkhalil-offer/"; 
             const n = encodeURIComponent(document.getElementById('c-name').value);
             const p = encodeURIComponent(document.getElementById('p-name').value);
             const l = document.getElementById('l-area').value;
@@ -110,15 +142,24 @@
             const e = document.getElementById('p-e').value;
             const b = document.getElementById('b-area').value;
 
+            // رابط مباشر (Web Page) مع حماية الخصوصية
             const offerLink = `${baseURL}?n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
-            const pdfURL = `https://api.html2pdf.app/v1/generate?url=${encodeURIComponent(offerLink)}&apiKey=public&format=A4&landscape=true`;
-            
-            window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(document.getElementById('wa-msg').value + pdfURL)}`;
+            const fullMsg = document.getElementById('wa-msg').value + offerLink;
+
+            window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(fullMsg)}`;
         }
 
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
-            if (params.has('admin')) document.getElementById('control-panel').style.display = 'grid';
+            const panel = document.getElementById('control-panel');
+
+            // إظهار اللوحة فقط إذا وجد "admin" في الرابط
+            if (params.has('admin')) {
+                panel.style.display = 'grid'; 
+            } else {
+                panel.style.display = 'none';
+            }
+
             if (params.has('l')) {
                 document.getElementById('c-name').value = params.get('n') || "";
                 document.getElementById('p-name').value = params.get('p') || "";
