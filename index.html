@@ -11,8 +11,7 @@
         #control-panel { 
             display: none; 
             background: #2c3e50; color: white; padding: 20px; width: 1000px; 
-            margin: 20px 0; border-radius: 10px; display: grid; 
-            grid-template-columns: repeat(4, 1fr); gap: 15px;
+            margin: 20px 0; border-radius: 10px; grid-template-columns: repeat(4, 1fr); gap: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
@@ -35,7 +34,7 @@
         .project-info { position: absolute; color: #58595b; font-weight: 700; white-space: nowrap; }
         .excel-value { position: absolute; color: #be1e2d; font-weight: bold; text-align: center; width: 28mm; font-size: 16px; }
 
-        /* الإحداثيات المعتمدة */
+        /* الإحداثيات */
         #display-project-name { top: 167.9mm; right: 109mm; font-size: 25px; } 
         #display-client-name { top: 111.2mm; right: 40.8mm; text-align: center; width: 40mm; font-size: 18px; }
         #display-date { top: 111.7mm; right: 185.5mm; text-align: center; width: 40mm; font-size: 18px; }
@@ -57,19 +56,19 @@
 <body>
 
     <div id="control-panel">
-        <div class="input-group"><label>نوع المشروع:</label><input type="text" id="p-name" value="مشروع سكني" oninput="updateAll()"></div>
-        <div class="input-group"><label>اسم العميل:</label><input type="text" id="c-name" oninput="updateAll()"></div>
-        <div class="input-group"><label>اسم الموظف:</label><input type="text" id="e-name" value="الوليد الشهري" oninput="updateAll()"></div>
-        <div class="input-group"><label>رقم الجوال:</label><input type="text" id="phone" placeholder="9665xxxxxxxx"></div>
+        <div class="input-group"><label>نوع المشروع:</label><input type="text" id="project-name" value="مشروع سكني" oninput="updateAll()"></div>
+        <div class="input-group"><label>اسم العميل:</label><input type="text" id="client-name" placeholder="أدخل اسم العميل" oninput="updateAll()"></div>
+        <div class="input-group"><label>اسم الموظف:</label><input type="text" id="employee-name" value="الوليد" oninput="updateAll()"></div>
+        <div class="input-group"><label>رقم الجوال (966...):</label><input type="text" id="client-phone" placeholder="9665xxxxxxxx"></div>
         <div class="input-group" style="grid-column: span 2;"><label>معاينة الرسالة:</label>
-            <textarea id="wa-msg" readonly></textarea>
+            <textarea id="whatsapp-message" readonly></textarea>
         </div>
-        <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="l-area" value="1000" oninput="updateAll()"></div>
-        <div class="input-group"><label>نسبة الأرضي:</label><input type="number" id="p-g" value="60" oninput="updateAll()"></div>
-        <div class="input-group"><label>نسبة الأول:</label><input type="number" id="p-f" value="60" oninput="updateAll()"></div>
-        <div class="input-group"><label>نسبة الملحق:</label><input type="number" id="p-r" value="50" oninput="updateAll()"></div>
-        <div class="input-group"><label>ملحق خارجي:</label><input type="number" id="p-e" value="10" oninput="updateAll()"></div>
-        <div class="input-group"><label>القبو:</label><input type="number" id="b-area" value="0" oninput="updateAll()"></div>
+        <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="input-land-area" value="1000" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الأرضي:</label><input type="number" id="perc-ground" value="60" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الأول:</label><input type="number" id="perc-first" value="60" oninput="updateAll()"></div>
+        <div class="input-group"><label>نسبة الملحق:</label><input type="number" id="perc-roof" value="50" oninput="updateAll()"></div>
+        <div class="input-group"><label>ملحق خارجي:</label><input type="number" id="perc-ext" value="10" oninput="updateAll()"></div>
+        <div class="input-group"><label>القبو:</label><input type="number" id="input-basement" value="0" oninput="updateAll()"></div>
         
         <button class="pdf-btn" onclick="window.print()">تصدير PDF للطباعة</button>
         <button class="wa-btn" onclick="sendWhatsApp()">إرسال العرض المختصر عبر واتساب</button>
@@ -92,83 +91,89 @@
         }
 
         function updateAll() {
-            const land = parseFloat(document.getElementById('l-area').value) || 0;
-            const pg = (parseFloat(document.getElementById('p-g').value) || 0) / 100;
-            const pf = (parseFloat(document.getElementById('p-f').value) || 0) / 100;
-            const pr = (parseFloat(document.getElementById('p-r').value) || 0) / 100;
-            const pe = (parseFloat(document.getElementById('p-e').value) || 0) / 100;
-            const ba = parseFloat(document.getElementById('b-area').value) || 0;
+            const landArea = parseFloat(document.getElementById('input-land-area').value) || 0;
+            const pGround = (parseFloat(document.getElementById('perc-ground').value) || 0) / 100;
+            const pFirst  = (parseFloat(document.getElementById('perc-first').value) || 0) / 100;
+            const pRoof   = (parseFloat(document.getElementById('perc-roof').value) || 0) / 100; 
+            const pExt    = (parseFloat(document.getElementById('perc-ext').value) || 0) / 100;
+            const basementArea = parseFloat(document.getElementById('input-basement').value) || 0;
 
-            const resG = land * pg; const resF = land * pf; const resR = resF * pr; const resE = land * pe;
-            currentTotal = Math.round(resG + resF + resR + resE + ba);
+            const resGround = landArea * pGround;
+            const resFirst  = landArea * pFirst;
+            const resRoof   = resFirst * pRoof; 
+            const resExt    = landArea * pExt;
+            currentTotal = Math.round(resGround + resFirst + resRoof + resExt + basementArea);
 
             const today = new Date();
-            const fDate = today.getDate() + '/' + (today.getMonth()+1) + '/' + today.getFullYear();
+            const formattedDate = today.getDate() + '/' + (today.getMonth()+1) + '/' + today.getFullYear();
             const hour = today.getHours();
-            const greet = (hour < 12) ? "يسعد صباحك" : "يسعد مساك";
+            const greeting = (hour < 12) ? "يسعد صباحك" : "يسعد مساك";
             
-            const client = document.getElementById('c-name').value || "عميلنا العزيز";
-            const emp = document.getElementById('e-name').value || "الوليد";
-            const proj = document.getElementById('p-name').value || "مشروعك";
+            const clientName = document.getElementById('client-name').value || "عميلنا العزيز";
+            const empName = document.getElementById('employee-name').value || "الوليد";
+            const proj = document.getElementById('project-name').value || "مشروعك";
 
-            document.getElementById('display-date').innerText = fDate;
-            document.getElementById('display-client-name').innerText = client;
+            document.getElementById('display-date').innerText = formattedDate;
+            document.getElementById('display-client-name').innerText = clientName;
             document.getElementById('display-project-name').innerText = proj;
 
-            const messageText = `أهلاً بك أ. ${client} .. ${greet} 🌸\n\nمعك ${emp} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط أدناه ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
-            document.getElementById('wa-msg').value = messageText;
+            const messageText = `أهلاً بك أ. ${clientName} .. ${greeting} 🌸\n\nمعك ${empName} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
+            document.getElementById('whatsapp-message').value = messageText;
 
-            const setV = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(val).toLocaleString() + " m2"; };
-            setV('val0', land); setV('val2', resG); setV('val3', resF); setV('val4', resR); setV('val5', resE); setV('val6', ba); setV('val1', currentTotal);
-            
-            const pImg = document.getElementById('img-slide-5');
-            if (currentTotal <= 800) pImg.src = "Price800.jpg";
-            else if (currentTotal <= 1500) pImg.src = "Price1500.jpg";
-            else if (currentTotal <= 3000) pImg.src = "Price3000.jpg";
-            else pImg.src = "Slide5.jpg";
+            const setVal = (id, num) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(num).toLocaleString('en-US') + " m2"; };
+            setVal('val0', landArea); setVal('val2', resGround); setVal('val3', resFirst); setVal('val4', resRoof); setVal('val5', resExt); setVal('val6', basementArea); setVal('val1', currentTotal);
+
+            const priceImg = document.getElementById('img-slide-5');
+            if (currentTotal <= 800) priceImg.src = "Price800.jpg";
+            else if (currentTotal <= 1500) priceImg.src = "Price1500.jpg";
+            else if (currentTotal <= 3000) priceImg.src = "Price3000.jpg";
+            else priceImg.src = "Slide5.jpg";
         }
 
         function sendWhatsApp() {
-            const phone = document.getElementById('phone').value;
+            const phone = document.getElementById('client-phone').value;
             if(!phone) { alert("يرجى إدخال رقم الجوال"); return; }
 
             const baseURL = "https://alkhalil-arch.github.io/alkhalil-offer/"; 
-            const n = encodeURIComponent(document.getElementById('c-name').value);
-            const p = encodeURIComponent(document.getElementById('p-name').value);
-            const l = document.getElementById('l-area').value;
-            const g = document.getElementById('p-g').value;
-            const f = document.getElementById('p-f').value;
-            const r = document.getElementById('p-r').value;
-            const e = document.getElementById('p-e').value;
-            const b = document.getElementById('b-area').value;
+            
+            // اختصار المتغيرات لأقصى درجة
+            const n = encodeURIComponent(document.getElementById('client-name').value);
+            const p = encodeURIComponent(document.getElementById('project-name').value);
+            const l = document.getElementById('input-land-area').value;
+            const g = document.getElementById('perc-ground').value;
+            const f = document.getElementById('perc-first').value;
+            const r = document.getElementById('perc-roof').value;
+            const e = document.getElementById('perc-ext').value;
+            const b = document.getElementById('input-basement').value;
 
-            // رابط مباشر (Web Page) مع حماية الخصوصية
+            // الرابط المختصر (بدون v=admin لضمان إخفاء اللوحة للعميل)
             const offerLink = `${baseURL}?n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
-            const fullMsg = document.getElementById('wa-msg').value + offerLink;
+            const fullMsg = document.getElementById('whatsapp-message').value + offerLink;
 
             window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(fullMsg)}`;
         }
 
         window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
+            const urlParams = new URLSearchParams(window.location.search);
             const panel = document.getElementById('control-panel');
 
             // إظهار اللوحة فقط إذا وجد "admin" في الرابط
-            if (params.has('admin')) {
+            if (urlParams.has('admin')) {
                 panel.style.display = 'grid'; 
             } else {
                 panel.style.display = 'none';
             }
 
-            if (params.has('l')) {
-                document.getElementById('c-name').value = params.get('n') || "";
-                document.getElementById('p-name').value = params.get('p') || "";
-                document.getElementById('l-area').value = params.get('l');
-                document.getElementById('p-g').value = params.get('g');
-                document.getElementById('p-f').value = params.get('f');
-                document.getElementById('p-r').value = params.get('r');
-                document.getElementById('p-e').value = params.get('e');
-                document.getElementById('b-area').value = params.get('b');
+            // قراءة البيانات المختصرة
+            if (urlParams.has('l')) {
+                if(urlParams.has('n')) document.getElementById('client-name').value = urlParams.get('n');
+                if(urlParams.has('p')) document.getElementById('project-name').value = urlParams.get('p');
+                document.getElementById('input-land-area').value = urlParams.get('l');
+                document.getElementById('perc-ground').value = urlParams.get('g');
+                document.getElementById('perc-first').value = urlParams.get('f');
+                document.getElementById('perc-roof').value = urlParams.get('r');
+                document.getElementById('perc-ext').value = urlParams.get('e');
+                document.getElementById('input-basement').value = urlParams.get('b');
                 updateAll();
             }
         }
