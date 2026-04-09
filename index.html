@@ -7,15 +7,16 @@
     <style>
         body { margin: 0; padding: 0; background-color: #525659; font-family: 'Cairo', sans-serif; display: flex; flex-direction: column; align-items: center; }
         
+        /* جعل لوحة التحكم مخفية افتراضياً للجميع */
         #control-panel { 
+            display: none; 
             background: #2c3e50; color: white; padding: 20px; width: 1000px; 
-            margin: 20px 0; border-radius: 10px; display: grid; 
-            grid-template-columns: repeat(4, 1fr); gap: 15px;
+            margin: 20px 0; border-radius: 10px; grid-template-columns: repeat(4, 1fr); gap: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         @media print { 
-            #control-panel { display: none; } 
+            #control-panel { display: none !important; } 
             body { background: none; margin: 0; padding: 0; }
             @page { size: A4 landscape; margin: 0; }
             .page { 
@@ -61,7 +62,7 @@
         <div class="input-group" style="grid-column: span 2;"><label>معاينة الرسالة:</label>
             <textarea id="whatsapp-message" readonly></textarea>
         </div>
-        <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="input-land-area" value="600" oninput="updateAll()"></div>
+        <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="input-land-area" value="1000" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الأرضي:</label><input type="number" id="perc-ground" value="60" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الأول:</label><input type="number" id="perc-first" value="60" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الملحق:</label><input type="number" id="perc-roof" value="50" oninput="updateAll()"></div>
@@ -142,8 +143,8 @@
             const e = document.getElementById('perc-ext').value;
             const b = document.getElementById('input-basement').value;
 
-            // أضفت هنا كلمة سر (v=1) تعني "وضعية العرض فقط" للعميل
-            const offerLink = `${baseURL}?v=1&n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
+            // نرسل الرابط مع بيانات العميل (بدون v=admin) لضمان الإخفاء
+            const offerLink = `${baseURL}?n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
             const fullMsg = document.getElementById('whatsapp-message').value + offerLink;
 
             window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(fullMsg)}`;
@@ -151,13 +152,18 @@
 
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            
-            // إذا كان الرابط يحتوي على v=1، قم بإخفاء لوحة التحكم فوراً
-            if(urlParams.get('v') === '1') {
-                document.getElementById('control-panel').style.display = 'none'; 
+            const panel = document.getElementById('control-panel');
+
+            // القاعدة الجديدة:
+            // 1. إذا فتحت الرابط وبآخره ?admin تظهر اللوحة
+            // 2. إذا لم يوجد admin، تظل اللوحة مخفية للعميل
+            if (urlParams.has('admin')) {
+                panel.style.display = 'grid'; 
+            } else {
+                panel.style.display = 'none';
             }
 
-            if(urlParams.has('l')) {
+            if (urlParams.has('l')) {
                 if(urlParams.has('n')) document.getElementById('client-name').value = urlParams.get('n');
                 if(urlParams.has('p')) document.getElementById('project-name').value = urlParams.get('p');
                 document.getElementById('input-land-area').value = urlParams.get('l');
