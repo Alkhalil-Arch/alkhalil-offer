@@ -33,7 +33,6 @@
         .project-info { position: absolute; color: #58595b; font-weight: 700; white-space: nowrap; }
         .excel-value { position: absolute; color: #be1e2d; font-weight: bold; text-align: center; width: 28mm; font-size: 16px; }
 
-        /* --- الإحداثيات المعتمدة --- */
         #display-project-name { top: 167.9mm; right: 109mm; font-size: 25px; } 
         #display-client-name { top: 111.2mm; right: 40.8mm; text-align: center; width: 40mm; font-size: 18px; }
         #display-date { top: 111.7mm; right: 185.5mm; text-align: center; width: 40mm; font-size: 18px; }
@@ -46,7 +45,7 @@
         .input-group { display: flex; flex-direction: column; }
         .input-group label { margin-bottom: 5px; font-size: 12px; color: #bdc3c7; }
         .input-group input, .input-group textarea { padding: 8px; border-radius: 5px; border: 1px solid #34495e; font-family: 'Cairo'; font-size: 14px; }
-        .input-group textarea { resize: vertical; min-height: 120px; grid-column: span 2; background: #ecf0f1; color: #2c3e50; }
+        .input-group textarea { resize: vertical; min-height: 100px; grid-column: span 2; background: #fdfdfd; color: #2c3e50; }
         
         .pdf-btn { grid-column: span 2; background: #be1e2d; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
         .wa-btn { grid-column: span 2; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
@@ -55,14 +54,14 @@
 <body>
 
     <div id="control-panel">
-        <div class="input-group"><label>نوع المشروع:</label><input type="text" id="project-name" oninput="updateAll()"></div>
-        <div class="input-group"><label>اسم العميل:</label><input type="text" id="client-name" oninput="updateAll()"></div>
+        <div class="input-group"><label>نوع المشروع:</label><input type="text" id="project-name" value="مشروع سكني" oninput="updateAll()"></div>
+        <div class="input-group"><label>اسم العميل:</label><input type="text" id="client-name" placeholder="أدخل اسم العميل" oninput="updateAll()"></div>
         <div class="input-group"><label>اسم الموظف:</label><input type="text" id="employee-name" value="الوليد" oninput="updateAll()"></div>
         <div class="input-group"><label>رقم الجوال (966...):</label><input type="text" id="client-phone" placeholder="9665xxxxxxxx"></div>
         <div class="input-group" style="grid-column: span 2;"><label>معاينة الرسالة:</label>
             <textarea id="whatsapp-message" readonly></textarea>
         </div>
-        <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="input-land-area" value="1000" oninput="updateAll()"></div>
+        <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="input-land-area" value="600" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الأرضي:</label><input type="number" id="perc-ground" value="60" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الأول:</label><input type="number" id="perc-first" value="60" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الملحق:</label><input type="number" id="perc-roof" value="50" oninput="updateAll()"></div>
@@ -70,7 +69,7 @@
         <div class="input-group"><label>القبو:</label><input type="number" id="input-basement" value="0" oninput="updateAll()"></div>
         
         <button class="pdf-btn" onclick="window.print()">تصدير PDF للطباعة</button>
-        <button class="wa-btn" onclick="sendWhatsApp()">إرسال الرابط عبر واتساب</button>
+        <button class="wa-btn" onclick="sendWhatsApp()">إرسال العرض المختصر عبر واتساب</button>
     </div>
 
     <div id="pages-container"></div>
@@ -108,16 +107,15 @@
             const hour = today.getHours();
             const greeting = (hour < 12) ? "يسعد صباحك" : "يسعد مساك";
             
-            const clientName = document.getElementById('client-name').value || "(اسم العميل)";
-            const empName = document.getElementById('employee-name').value || "(الموظف)";
-            const proj = document.getElementById('project-name').value || "المشروع";
+            const clientName = document.getElementById('client-name').value || "عميلنا العزيز";
+            const empName = document.getElementById('employee-name').value || "الوليد";
+            const proj = document.getElementById('project-name').value || "مشروعك";
 
             document.getElementById('display-date').innerText = formattedDate;
             document.getElementById('display-client-name').innerText = clientName;
             document.getElementById('display-project-name').innerText = proj;
 
-            // تحديث الرسالة بالصيغة الجديدة
-            const messageText = `أهلاً بك  ${clientName} .. ${greeting} 🌸\n\nمعك ${empName} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
+            const messageText = `أهلاً بك أ. ${clientName} .. ${greeting} 🌸\n\nمعك ${empName} من شركة الخليل.. حبيت أتواصل معك وأرسل لك عرض السعر المبدئي لمشروعكم المميز ، والي اشتغلنا عليه بكل اهتمام عشان يناسب تطلعاتكم.\n\nتلاقي في الرابط ملف يوضح لك كل التفاصيل. وبإذن الله ينال رضاكم واستحسانكم.. وإذا فيه أي استفسار أو نقطة حاب نناقشها، لا تتردد أبداً بالتواصل معي، أنا موجود وبخدمتك دائماً. 😊🌷\n\n🔗 رابط العرض: `;
             document.getElementById('whatsapp-message').value = messageText;
 
             const setVal = (id, num) => { if(document.getElementById(id)) document.getElementById(id).innerText = Math.round(num).toLocaleString('en-US') + " m2"; };
@@ -132,7 +130,7 @@
 
         function sendWhatsApp() {
             const phone = document.getElementById('client-phone').value;
-            if(!phone) { alert("أدخل رقم الجوال"); return; }
+            if(!phone) { alert("يرجى إدخال رقم الجوال"); return; }
 
             const baseURL = "https://alkhalil-arch.github.io/alkhalil-offer/"; 
             const n = encodeURIComponent(document.getElementById('client-name').value);
@@ -144,7 +142,8 @@
             const e = document.getElementById('perc-ext').value;
             const b = document.getElementById('input-basement').value;
 
-            const offerLink = `${baseURL}?n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
+            // أضفت هنا كلمة سر (v=1) تعني "وضعية العرض فقط" للعميل
+            const offerLink = `${baseURL}?v=1&n=${n}&p=${p}&l=${l}&g=${g}&f=${f}&r=${r}&e=${e}&b=${b}`;
             const fullMsg = document.getElementById('whatsapp-message').value + offerLink;
 
             window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(fullMsg)}`;
@@ -152,10 +151,15 @@
 
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.has('n')) {
+            
+            // إذا كان الرابط يحتوي على v=1، قم بإخفاء لوحة التحكم فوراً
+            if(urlParams.get('v') === '1') {
                 document.getElementById('control-panel').style.display = 'none'; 
-                document.getElementById('client-name').value = urlParams.get('n');
-                document.getElementById('project-name').value = urlParams.get('p');
+            }
+
+            if(urlParams.has('l')) {
+                if(urlParams.has('n')) document.getElementById('client-name').value = urlParams.get('n');
+                if(urlParams.has('p')) document.getElementById('project-name').value = urlParams.get('p');
                 document.getElementById('input-land-area').value = urlParams.get('l');
                 document.getElementById('perc-ground').value = urlParams.get('g');
                 document.getElementById('perc-first').value = urlParams.get('f');
