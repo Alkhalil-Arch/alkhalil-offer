@@ -10,23 +10,20 @@
             display: none; background: #2c3e50; color: white; padding: 20px; width: 1000px; 
             margin: 20px 0; border-radius: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;
         }
-        @media print { #control-panel { display: none !important; } body { background: none; } }
+        @media print { #control-panel { display: none !important; } body { background: none; } .page { margin: 0 !important; box-shadow: none !important; page-break-after: always !important; width: 297mm !important; height: 210mm !important; } }
         .page { position: relative; width: 297mm; height: 210mm; background-color: white; margin-bottom: 10px; overflow: hidden; }
         .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; z-index: 1; }
         .content-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
         .project-info { position: absolute; color: #58595b; font-weight: 700; white-space: nowrap; }
         .excel-value { position: absolute; color: #be1e2d; font-weight: bold; text-align: center; width: 28mm; font-size: 16px; }
         
-        /* إحداثيات القيم على الصورة رقم 4 */
-        #val0 { top: 49.5mm; right: 243mm; } /* مساحة الأرض */
-        #val1 { top: 62.8mm; right: 243mm; } /* الإجمالي */
-        #val2 { top: 83.5mm; right: 243mm; } /* الأرضي */
-        #val3 { top: 97.2mm; right: 243mm; } /* الأول */
-        #val4 { top: 112.5mm; right: 243mm; } /* العلوي */
-        #val5 { top: 125.8mm; right: 243mm; } /* الخارجي */
-        #val6 { top: 139.5mm; right: 243mm; } /* القبو */
+        /* إحداثيات المساحات (الصورة 4) */
+        #val0 { top: 49.5mm; right: 243mm; } #val1 { top: 62.8mm; right: 243mm; } 
+        #val2 { top: 83.5mm; right: 243mm; } #val3 { top: 97.2mm; right: 243mm; } 
+        #val4 { top: 112.5mm; right: 243mm; } #val5 { top: 125.8mm; right: 243mm; } 
+        #val6 { top: 139.5mm; right: 243mm; }
 
-        /* إحداثيات الغلاف وبيانات العميل */
+        /* إحداثيات الغلاف */
         #display-project-name { top: 167.9mm; right: 109mm; font-size: 25px; } 
         #display-client-name { top: 111.2mm; right: 40.8mm; text-align: center; width: 40mm; font-size: 18px; }
         #display-date { top: 111.7mm; right: 185.5mm; text-align: center; width: 40mm; font-size: 18px; }
@@ -44,17 +41,14 @@
         <div class="input-group"><label>اسم العميل:</label><input type="text" id="c-name" oninput="updateAll()"></div>
         <div class="input-group"><label>اسم الموظف:</label><input type="text" id="e-name" value="الوليد الشهري" oninput="updateAll()"></div>
         <div class="input-group"><label>رقم الجوال:</label><input type="text" id="phone" placeholder="9665xxxxxxxx"></div>
-        
         <div class="input-group"><label>مساحة الأرض:</label><input type="number" id="l-area" value="1000" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الأرضي %:</label><input type="number" id="p-g" value="60" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة الأول %:</label><input type="number" id="p-f" value="60" oninput="updateAll()"></div>
         <div class="input-group"><label>نسبة العلوي %:</label><input type="number" id="p-r" value="50" oninput="updateAll()"></div>
-        
         <div class="input-group"><label>نسبة الخارجي %:</label><input type="number" id="p-e" value="10" oninput="updateAll()"></div>
         <div class="input-group"><label>مساحة القبو:</label><input type="number" id="b-area" value="0" oninput="updateAll()"></div>
         <div class="input-group" style="grid-column: span 2;"><label>معاينة الرسالة:</label><textarea id="wa-msg" readonly></textarea></div>
-        
-        <button class="wa-btn" onclick="sendWhatsApp()">إرسال العرض وتسجيله في المتابعة</button>
+        <button class="wa-btn" onclick="sendWhatsApp()">إرسال العرض وتسجيله في أول صف فارغ</button>
     </div>
 
     <div id="pages-container"></div>
@@ -77,10 +71,7 @@
             const pe = (parseFloat(document.getElementById('p-e').value) || 0) / 100;
             const ba = parseFloat(document.getElementById('b-area').value) || 0;
 
-            const resG = land * pg;
-            const resF = land * pf;
-            const resR = resF * pr;
-            const resE = land * pe;
+            const resG = land * pg; const resF = land * pf; const resR = resF * pr; const resE = land * pe;
             const total = Math.round(resG + resF + resR + resE + ba);
 
             document.getElementById('display-client-name').innerText = document.getElementById('c-name').value || "عميلنا العزيز";
@@ -102,15 +93,15 @@
 
             if(!phone) { alert("أدخل رقم الجوال"); return; }
 
-            // إرسال البيانات لشيت "الوليد متابعة"
-            const scriptURL = "https://script.google.com/macros/s/AKfycbyf6oTXtJv2vKsSbSoUcH88SyRk1hj7spOOvp5qVYtUA4PSE6EkAwbcDgo99jxmX1zt/exec";
+            // الرابط الجديد الذي أرسلته
+            const scriptURL = "https://script.google.com/macros/s/AKfycby__tmaAzSB07BZNeZnbzIl3bItsgOIs9VDluPuiEHlGf3kC1-iox__r0TLQ9JjV8g/exec";
+            
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({ name: name, phone: phone, land: land, project: project })
             });
 
-            // فتح الواتساب
             const baseURL = "https://alkhalil-arch.github.io/alkhalil-offer/"; 
             const query = `?n=${encodeURIComponent(name)}&p=${encodeURIComponent(project)}&l=${land}&g=${document.getElementById('p-g').value}&f=${document.getElementById('p-f').value}&r=${document.getElementById('p-r').value}&e=${document.getElementById('p-e').value}&b=${document.getElementById('b-area').value}`;
             window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(document.getElementById('wa-msg').value + baseURL + query)}`;
